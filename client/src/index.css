@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    background-color: #24233b;
+    color:beige;
+    font-family: 'Handjet';
+    padding: 2%;
+}

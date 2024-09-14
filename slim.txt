@@ -1,0 +1,34 @@
+# Start with the official Node.js image
+FROM node:18
+
+# Avoid prompts from apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install necessary packages
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install spotdl with all dependencies
+RUN pip3 install --upgrade pip \
+    && pip3 install spotdl[all]
+
+# Set up working directory
+WORKDIR /app
+
+# Copy your code into the container
+COPY . /app
+
+# Install Node.js dependencies (if you have a package.json)
+RUN if [ -f package.json ]; then npm install; fi
+
+# Download FFmpeg using spotdl
+RUN python3 -m spotdl --download-ffmpeg
+
+# Expose the port your app runs on
+EXPOSE 3000
+
+# Command to run your app
+CMD ["node", "index.js"]
