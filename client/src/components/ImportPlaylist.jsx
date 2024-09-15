@@ -16,7 +16,7 @@ const ImportPlaylist = () => {
     // console.log(searchQuery)
 
     try {
-      const response = await axios.post(`http://localhost:3000/spotify-url`, {
+      const response = await axios.post(`/spotify-url`, {
         "url": searchQuery
       });
 

@@ -21,6 +21,9 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip3 install --upgrade pip \
     && pip3 install spotdl[all]
 
+# Download FFmpeg using spotdl
+RUN python3 -m spotdl --download-ffmpeg
+
 # Set up working directory
 WORKDIR /app
 
@@ -33,12 +36,11 @@ RUN npm install
 # Install Node.js dependencies in the client folder
 WORKDIR /app/client
 RUN npm install
+RUN npm run build
 
 # Return to the main app directory
 WORKDIR /app
 
-# Download FFmpeg using spotdl
-RUN python3 -m spotdl --download-ffmpeg
 
 # Expose the port your app runs on
 EXPOSE 3000

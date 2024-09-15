@@ -1,74 +1,122 @@
-import React,{useState,useEffect} from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
 import Mp3Card from '../../components/Mp3Card';
-import Cover from '../../../public/music_cover.jpg'
-
-
+import Navbar from '../../components/Navbar';
 
 const Song = () => {
-  const [audioSrc, setAudioSrc] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { songName } = useParams();
   const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const audioRef = useRef(null);
+  const [audioUrl, setAudioUrl] = useState(null);
+
   useEffect(() => {
     const fetchSong = async () => {
       try {
-        const response = await fetch('http://localhost:3000/download-song', {
+        console.log('Fetching song:', songName);
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch('/download-song', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ songName }),
         });
-        
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
         if (!response.ok) {
-          throw new Error('Failed to fetch song');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const blob = await response.blob();
+        const reader = response.body.getReader();
+        let chunks = [];
+        let totalLength = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          totalLength += value.length;
+          console.log('Received chunk, size:', value.length, 'Total size:', totalLength);
+        }
+
+        const blob = new Blob(chunks, { type: 'audio/mpeg' });
+        console.log('Created blob, size:', blob.size);
+
         const url = URL.createObjectURL(blob);
-        setAudioSrc(url);
+        console.log('Created audio URL:', url);
+        setAudioUrl(url);
+
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching song:', error);
+        setError('Failed to fetch song');
+        setIsLoading(false);
       }
     };
 
     fetchSong();
-    fetchThumbnail(songName);
+    fetchThumbnail();
   }, [songName]);
 
-  const fetchThumbnail = async (songName) => {
+  useEffect(() => {
+    if (audioUrl && audioRef.current) {
+      audioRef.current.src = audioUrl;
+      console.log('Set audio source:', audioRef.current.src);
+    }
+  }, [audioUrl]);
+
+  const fetchThumbnail = async () => {
     try {
-      const response = await fetch('http://localhost:3000/get-song-info', {
+      console.log('Fetching thumbnail for:', songName);
+      const response = await fetch('/get-song-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ songName }),
-      });   
+      });
       const data = await response.json();
+      console.log('Thumbnail data:', data);
       setThumbnailUrl(data.songInfo.thumbnailUrl);
     } catch (error) {
       console.error('Error fetching thumbnail:', error);
-      return null;
     }
-  };    
+  };
+
+  const handleCanPlay = () => {
+    console.log('Audio can play');
+    if (audioRef.current) {
+      console.log('Audio duration:', audioRef.current.duration);
+      console.log('Audio ready state:', audioRef.current.readyState);
+    }
+  };
+
+  const handleError = (e) => {
+    console.error('Audio error:', e);
+    setError(`Audio error: ${e.target.error ? e.target.error.message : 'Unknown error'}`);
+  };
 
   return (
     <>
-    <Navbar/>
-    <div>
-      <h2>Now Playing: {songName}</h2>
-      {audioSrc ? <Mp3Card music_cover={thumbnailUrl}  album_name={songName} sing_by="Kanye" music_src={audioSrc}/> : <p>Loading...</p>}
-      {/* <Mp3Card music_src={audioSrc}/> */}
-      {/* {audioSrc && (
-          <audio controls>
-          <source src={audioSrc} type="audio/mpeg" />
-          Your browser does not support the audio element.
-        </audio>
-      )} */}
-    </div>
-      </>
+      <Navbar />
+      <div>
+        <h2>Now Playing: {songName}</h2>
+        {isLoading ? (
+          <p id='loading'>Loading...</p>
+        ) :
+          <>
+            <Mp3Card music_cover={thumbnailUrl} album_name={songName} sing_by="Artist" music_src={audioUrl} />
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+          </>
+        }
+      </div>
+    </>
   )
 }
 

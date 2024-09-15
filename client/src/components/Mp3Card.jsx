@@ -32,6 +32,7 @@ const Mp3Card = (props) => {
           style={{ accentColor: "#1db954" }}
           onPlay={handlePlay}
           onPause={handlePause}
+          type="audio/mpeg"
         >
           <source src={props.music_src} type="audio/mpeg" />
         </audio>
