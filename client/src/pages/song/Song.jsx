@@ -20,7 +20,7 @@ const Song = () => {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch('http://localhost:3000/download-song', {
+        const response = await fetch('/download-song', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const Song = () => {
       let getSongs = JSON.parse(localStorage.getItem('getSongs'))
       let songUrl = getSongs[songName]
       console.log('Fetching thumbnail for:', songUrl);
-      const response = await fetch('http://localhost:3000/get-song-info', {
+      const response = await fetch('/get-song-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
