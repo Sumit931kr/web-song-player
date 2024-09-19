@@ -15,15 +15,17 @@ const Song = () => {
     const fetchSong = async () => {
       try {
         console.log('Fetching song:', songName);
+        let getSongs = JSON.parse(localStorage.getItem('getSongs'))
+        let songUrl = getSongs[songName]
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch('/download-song', {
+        const response = await fetch('http://localhost:3000/download-song', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ songName }),
+          body: JSON.stringify({ songUrl }),
         });
 
         console.log('Response status:', response.status);
@@ -73,13 +75,15 @@ const Song = () => {
 
   const fetchThumbnail = async () => {
     try {
-      console.log('Fetching thumbnail for:', songName);
-      const response = await fetch('/get-song-info', {
+      let getSongs = JSON.parse(localStorage.getItem('getSongs'))
+      let songUrl = getSongs[songName]
+      console.log('Fetching thumbnail for:', songUrl);
+      const response = await fetch('http://localhost:3000/get-song-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ songName }),
+        body: JSON.stringify({ songUrl }),
       });
       const data = await response.json();
       console.log('Thumbnail data:', data);

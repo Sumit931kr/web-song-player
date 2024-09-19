@@ -41,12 +41,13 @@ spotifyApi.clientCredentialsGrant().then(
 const path = require('path');
 
 // Serve static files from the 'dist' folder
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'client/dist')));
 
 // Handle all other routes by serving index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
 });
+
 
 
 

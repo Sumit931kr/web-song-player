@@ -32,8 +32,8 @@ const removeDirectoryContents = async (directory, retries = 3) => {
 const downloadSong = async (req, res) => {
     let tempDir = '';
     try {
-        const { songName } = req.body;
-        console.log(`Downloading and streaming: ${songName}`);
+        const { songUrl } = req.body;
+        console.log(`Downloading and streaming: ${songUrl}`);
 
         // Create a temporary directory
         tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'spotdl-'));
@@ -54,7 +54,7 @@ const downloadSong = async (req, res) => {
         res.setHeader('Transfer-Encoding', 'chunked');
 
         // Spawn spotdl process
-        const spotdl = spawn('spotdl', [songName, '--output', tempDir]);
+        const spotdl = spawn('spotdl', [songUrl, '--output', tempDir]);
 
         let stdoutOutput = '';
         let stderrOutput = '';
@@ -147,3 +147,4 @@ const downloadSong = async (req, res) => {
 };
 
 module.exports = {downloadSong};
+

@@ -16,7 +16,7 @@ const ImportPlaylist = () => {
     // console.log(searchQuery)
 
     try {
-      const response = await axios.post(`/spotify-url`, {
+      const response = await axios.post(`http://localhost:3000/spotify-url`, {
         "url": searchQuery
       });
 
@@ -31,6 +31,22 @@ const ImportPlaylist = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     searchPlaylists();
+  };
+
+  const navigateToSong = (playlist) => {
+    console.log(playlist)
+    let getSongs = JSON.parse(localStorage.getItem('getSongs'))
+    if(getSongs){ 
+      let newSongs = { [playlist?.name] : playlist?.spotifyUrl }
+
+      getSongs = { ...getSongs, ...newSongs }
+      localStorage.setItem('getSongs', JSON.stringify(getSongs))
+    }
+    else{
+      let newSongs = { [playlist?.name] : playlist?.spotifyUrl }
+      localStorage.setItem('getSongs', JSON.stringify(newSongs))
+    }
+    window.open(`${window.location.origin}/song/${playlist.name}`, '_blank').focus();
   };
 
   return (
@@ -74,13 +90,11 @@ const ImportPlaylist = () => {
 
                   <li key={index}
                     className="border-2 px-4 hover:bg-gray-100 shadow-md  hover:text-black">
-                    <a
-                      href={`/song/${playlist.name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <div
+                    onClick={()=>navigateToSong(playlist)}
                     >
                       {playlist.name}
-                    </a>
+                    </div>
                   </li>
                 ))}
               </ul>
