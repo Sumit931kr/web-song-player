@@ -2,4 +2,5 @@
 .env
 /downloads
 
+/dist
 /client/node_modules
